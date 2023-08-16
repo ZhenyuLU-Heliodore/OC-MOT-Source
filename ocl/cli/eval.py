@@ -2,6 +2,7 @@
 import dataclasses
 from typing import Any, Dict, Optional
 from pytorch_lightning.utilities.cloud_io import load as pl_load
+from hydra import initialize, compose
 import hydra
 import hydra_zen
 import pytorch_lightning as pl
@@ -153,6 +154,14 @@ def train(config: TrainingConfig):
 
     print("******start validate model******")
     trainer.validate(model, datamodule.val_dataloader())
+
+
+def init_training_config(config_name, config_path="../../configs/"):
+    initialize(config_path=config_path)
+    cfg = compose(config_name=config_name)
+
+    return cfg
+
 
 
 if __name__ == "__main__":
