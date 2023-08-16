@@ -1,0 +1,32 @@
+image: python:3.8
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  POETRY_CACHE_DIR: "$CI_PROJECT_DIR/.cache/poetry"  # Path for artifacts and venvs.
+  PRE_COMMIT_HOME: "$CI_PROJECT_DIR/.cache/pre-commit"
+  FF_USE_FASTZIP: "true"
+  ARTIFACT_COMPRESSION_LEVEL: "fast"
+  CACHE_COMPRESSION_LEVEL: "fast"
+  # Enable access to datasets in S3.
+  AWS_CREDS_TARGET_ROLE: arn:aws:iam::436622332146:role/ocl_GitLab_S3Access
+  AWS_DEFAULT_REGION: us-east-2
+
+cache:
+  paths:
+    # Poetry uses the pip cache for packages. We thus don't need to explicityly back them up.
+    - ${PIP_CACHE_DIR}
+    - ${PRE_COMMIT_HOME}
+
+before_script:
+  - python --version  # For debugging
+  - pip install poetry
+  - poetry --version  # For debugging
+  - poetry install -vv -E timm
+  - ls ${POETRY_CACHE_DIR}
+
+lint_and_test:
+  tags:
+    - amd64-always-pull-image
+  script:
+    - poetry run pre-commit run --all-files --show-diff-on-failure
+    - poetry run pytest -v --runslow
