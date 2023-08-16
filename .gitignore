@@ -131,9 +131,11 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# add
 .idea
 
 testing_script.py
 pyproject.toml
 setup.cfg
+README.md
+.*
+!/.gitignore
